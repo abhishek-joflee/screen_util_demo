@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,28 +11,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //Set the fit size (fill in the screen size of the device in the design) If the design is based on the size of the iPhone6 ​​(iPhone6 ​​750*1334)
-    return ScreenUtilInit(
-      designSize: const Size(360, 690),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: () => MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Flutter_ScreenUtil',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          textTheme: TextTheme(button: TextStyle(fontSize: 45.sp)),
-        ),
-        builder: (context, widget) {
-          ScreenUtil.setContext(context);
-          return MediaQuery(
-            //Setting font does not change with system font size
-            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-            child: widget!,
-          );
-        },
-        home: const HomePage(title: 'FlutterScreenUtil Demo'),
-      ),
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter_ScreenUtil',
+      home: HomePage(title: 'FlutterScreenUtil Demo'),
     );
   }
 }
@@ -51,105 +31,32 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    printScreenInformation();
+    ScreenUtil.init(
+      BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width,
+          maxHeight: MediaQuery.of(context).size.height),
+      designSize: const Size(375, 812),
+      context: context,
+      minTextAdapt: true,
+      orientation: Orientation.portrait,
+    );
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                // Using Extensions
-                Container(
-                  padding: EdgeInsets.all(10.w),
-                  width: 0.5.sw,
-                  height: 200.h,
-                  color: Colors.black54,
-                  child: Container(
-                    color: Colors.red,
-                    child: Text(
-                      'My actual width: ${0.5.sw}dp \n\n'
-                      'My actual height: ${200.h}dp',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12.sp,
-                      ),
-                    ),
-                  ),
-                ),
-                // Without using Extensions
-                Container(
-                  padding: EdgeInsets.all(ScreenUtil().setWidth(10)),
-                  width: ScreenUtil().setWidth(180),
-                  height: ScreenUtil().setHeight(200),
-                  color: Colors.blue,
-                  child: Text(
-                    'My design draft width: 180dp\n\n'
-                    'My design draft height: 200dp',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: ScreenUtil().setSp(12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Container(
-              padding: EdgeInsets.all(10.w),
-              width: 100.r,
-              height: 100.r,
-              color: Colors.green,
-              child: Text(
-                'I am a square with a side length of 100',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12.sp,
-                ),
-              ),
-            ),
-            Text('Device width:${ScreenUtil().screenWidth}dp'),
-            Text('Device height:${ScreenUtil().screenHeight}dp'),
-            Text('Device pixel density:${ScreenUtil().pixelRatio}'),
-            Text('Bottom safe zone distance:${ScreenUtil().bottomBarHeight}dp'),
-            Text('Status bar height:${ScreenUtil().statusBarHeight}dp'),
-            Text(
-              'The ratio of actual width to UI design:${ScreenUtil().scaleWidth}',
-              textAlign: TextAlign.center,
-            ),
-            Text(
-              'The ratio of actual height to UI design:${ScreenUtil().scaleHeight}',
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(
-              height: 10.h,
-            ),
-            Text('System font scaling factor:${ScreenUtil().textScaleFactor}'),
-            const SizedBox(height: 5),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  '16sp, will not change with the system.',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16.sp,
-                  ),
-                  textScaleFactor: 1.0,
-                ),
-                Text(
-                  '16sp,if data is not set in MediaQuery,my font size will change with the system.',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16.sp,
-                  ),
-                ),
-              ],
-            )
-          ],
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {},
+          color: Colors.black,
+          tooltip: "Back",
         ),
+        actions: [
+          MaterialButton(
+            onPressed: () {},
+            child: Text("Edit", style: TextStyle(fontSize: 20.sp)),
+          ),
+        ],
+        elevation: 0,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -162,19 +69,232 @@ class _HomePageState extends State<HomePage> {
         },
         child: const Icon(Icons.screen_rotation),
       ),
+      body: SafeArea(
+        child: ListView(
+          children: [
+            const _ProfileTile(),
+            SizedBox(height: 28.h),
+            const _BioTile(),
+            SizedBox(height: 20.h),
+            const _ProfileSettingTiles(),
+            const _SettingTileDivider(),
+            SizedBox(height: 22.h),
+            const _AboutSettingTiles(),
+            SizedBox(height: 46.h),
+            const _SignOutTile(),
+          ],
+        ),
+      ),
     );
   }
+}
 
-  void printScreenInformation() {
-    log('Device Size:${Size(1.sw, 1.sh)}');
-    log('Device pixel density:${ScreenUtil().pixelRatio}');
-    log('Bottom safe zone distance dp:${ScreenUtil().bottomBarHeight}dp');
-    log('Status bar height dp:${ScreenUtil().statusBarHeight}dp');
-    log('The ratio of actual width to UI design:${ScreenUtil().scaleWidth}');
-    log('The ratio of actual height to UI design:${ScreenUtil().scaleHeight}');
-    log('System font scaling:${ScreenUtil().textScaleFactor}');
-    log('0.5 times the screen width:${0.5.sw}dp');
-    log('0.5 times the screen height:${0.5.sh}dp');
-    log('Screen orientation:${ScreenUtil().orientation}');
+class _SignOutTile extends StatelessWidget {
+  const _SignOutTile({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(12.h),
+      margin: EdgeInsets.symmetric(horizontal: 20.h),
+      child: Row(
+        children: <Widget>[
+          const Icon(Icons.output_outlined, color: Colors.red),
+          SizedBox(width: 20.w),
+          Text(
+            "Sign out",
+            style: TextStyle(
+              color: Colors.red,
+              fontWeight: FontWeight.w700,
+              fontFamily: "Poppins",
+              fontStyle: FontStyle.normal,
+              fontSize: 16.0.sp,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AboutSettingTiles extends StatelessWidget {
+  const _AboutSettingTiles({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Column(
+        children: const <Widget>[
+          _SettingTile(icon: Icons.info_outline, name: "About Us"),
+          _SettingTileDivider(),
+          _SettingTile(icon: Icons.person_outline, name: "Contact Us"),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileSettingTiles extends StatelessWidget {
+  const _ProfileSettingTiles({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Column(
+        children: const <Widget>[
+          _SettingTile(icon: Icons.notifications_none, name: "Notification"),
+          _SettingTileDivider(),
+          _SettingTile(icon: Icons.bookmark_outline, name: "My Saved Facts"),
+          _SettingTileDivider(),
+          _SettingTile(icon: Icons.bar_chart_rounded, name: "My Stats"),
+          _SettingTileDivider(),
+          _SettingTile(icon: Icons.favorite_border, name: "My Liked"),
+          _SettingTileDivider(),
+          _SettingTile(icon: Icons.lightbulb_outline, name: "My Facts"),
+        ],
+      ),
+    );
+  }
+}
+
+class _SettingTileDivider extends StatelessWidget {
+  const _SettingTileDivider({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 1,
+      decoration: const BoxDecoration(
+        color: Color.fromRGBO(184, 184, 187, 0.3),
+      ),
+    );
+  }
+}
+
+class _SettingTile extends StatelessWidget {
+  final String name;
+  final IconData icon;
+  const _SettingTile({
+    Key? key,
+    required this.name,
+    required this.icon,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(12.h),
+      child: Row(
+        children: <Widget>[
+          Icon(icon),
+          SizedBox(width: 20.w),
+          Text(
+            name,
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w400,
+              fontFamily: "Poppins",
+              fontSize: 16.0,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BioTile extends StatelessWidget {
+  const _BioTile({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 30.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            "Bio",
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+              fontFamily: "Poppins",
+            ),
+          ),
+          SizedBox(height: 6.h),
+          const Text(
+            "-Giving you an insight into the human Mind\n-Inspiring , motivating & Empowering!",
+            style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.w400,
+                fontFamily: "Poppins",
+                fontStyle: FontStyle.normal,
+                fontSize: 14.0),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileTile extends StatelessWidget {
+  const _ProfileTile({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 25.w),
+      child: Row(
+        children: <Widget>[
+          //? image
+          CircleAvatar(
+            // backgroundImage: const NetworkImage(
+            //   "https://upload.wikimedia.org/wikipedia/commons/6/67/Kiara_Advani_walks_for_Shyamal-Bhumika_at_India_Couture_Week_2018_Day_4_%2803%29_%28cropped%29.jpg",
+            // ),
+            backgroundColor: Colors.grey[350],
+            radius: 37.5.r,
+          ),
+
+          //? space
+          SizedBox(width: 26.w),
+
+          //? about
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 11.5),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    "Kiara Advani",
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      letterSpacing: 0.2,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                      fontFamily: "Poppins",
+                    ),
+                  ),
+                  SizedBox(height: 7.h),
+                  Text(
+                    "advani@gmail.com",
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      letterSpacing: 0.2,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w400,
+                      fontFamily: "Poppins",
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
   }
 }
